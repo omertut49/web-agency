@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
+import Image from "next/image";
 
 const WHATSAPP_NUMBER = "905456952696";
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}`;
@@ -24,6 +25,40 @@ const nav = [
   { label: "Süreç", href: "#surec" },
   { label: "SSS", href: "#sss" },
   { label: "İletişim", href: "#iletisim" },
+];
+
+// ✅ SADECE EKLENDİ: 6 portföy görseli (public/portfolio içindeki png’ler)
+const portfolioItems = [
+  {
+    title: "E-Ticaret",
+    subtitle: "Kurumsal / Landing / Portföy",
+    image: "/portfolio/eticaret.png",
+  },
+  {
+    title: "Klinik",
+    subtitle: "Kurumsal / Landing / Portföy",
+    image: "/portfolio/klinik.png",
+  },
+  {
+    title: "Gayrimenkul",
+    subtitle: "Kurumsal / Landing / Portföy",
+    image: "/portfolio/gayrimenkul.png",
+  },
+  {
+    title: "Restoran",
+    subtitle: "Kurumsal / Landing / Portföy",
+    image: "/portfolio/restoran.png",
+  },
+  {
+    title: "Hukuk",
+    subtitle: "Kurumsal / Landing / Portföy",
+    image: "/portfolio/hukuk.png",
+  },
+  {
+    title: "Danışmanlık",
+    subtitle: "Kurumsal / Landing / Portföy",
+    image: "/portfolio/danismanlik.png",
+  },
 ];
 
 // ✅ Logo seçenekleri (3 adet). Birini seçmek için aşağıdaki `ACTIVE_LOGO` değişkenini 1/2/3 yap.
@@ -321,21 +356,53 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Portfolio */}
-      <section id="portfoy" className="mx-auto max-w-6xl px-6 py-12">
-        <h2 className="text-2xl font-semibold">Portföy</h2>
-        <p className="mt-2 text-zinc-300">Birkaç örnek çalışma.</p>
+    {/* Portfolio */}
+<section id="portfoy" className="mx-auto max-w-6xl px-6 py-12">
+  <h2 className="text-2xl font-semibold">Portföy</h2>
+  <p className="mt-2 text-zinc-300">Birkaç örnek çalışma.</p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-3xl border border-white/10 bg-[#161A22] p-4">
-              <div className="aspect-[16/10] rounded-2xl bg-white/5" />
-              <div className="mt-3 text-sm text-zinc-200">Proje #{i + 1}</div>
-              <div className="mt-1 text-xs text-zinc-400">Kurumsal / Landing / Portföy</div>
-            </div>
-          ))}
-        </div>
-      </section>
+  {(() => {
+    const items = [
+      { title: "E-Ticaret", file: "/portfolio/eticaret.png" },
+      { title: "Klinik", file: "/portfolio/klinik.png" },
+      { title: "Gayrimenkul", file: "/portfolio/gayrimenkul.png" },
+      { title: "Restoran", file: "/portfolio/restoran.png" },
+      { title: "Hukuk", file: "/portfolio/hukuk.png" },
+      { title: "Danışmanlık", file: "/portfolio/danismanlik.png" },
+    ];
+
+    return (
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {items.map((it) => (
+          <div key={it.title} className="group rounded-3xl border border-white/10 bg-[#161A22] p-4">
+           <div className="aspect-[16/10] group relative flex items-center justify-center overflow-hidden rounded-2xl bg-[#0F1115] p-6 transition duration-500 hover:-translate-y-2 border border-white/10">
+
+  {/* Glow efekti */}
+  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-violet-600/10 opacity-0 transition duration-500 group-hover:opacity-100" />
+
+  {/* Görsel */}
+  <img
+    src={it.file}
+    alt={it.title}
+    className="relative z-10 max-h-full max-w-full object-contain transition duration-700 group-hover:scale-125"
+    onError={(e) => {
+      (e.currentTarget as HTMLImageElement).style.display = "none";
+      console.error("Görsel yüklenemedi:", it.file);
+    }}
+  />
+
+</div>
+
+
+            <div className="mt-3 text-sm text-zinc-200">{it.title}</div>
+            <div className="mt-1 text-xs text-zinc-400">Kurumsal / Landing / Portföy</div>
+          </div>
+        ))}
+      </div>
+    );
+  })()}
+</section>
+
 
       {/* Process */}
       <section id="surec" className="mx-auto max-w-6xl px-6 py-12">
@@ -374,9 +441,7 @@ export default function Home() {
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <h2 className="text-2xl font-semibold">İletişim</h2>
-              <p className="mt-2 text-zinc-300">
-                WhatsApp veya e-posta ile hızlıca ulaş.
-              </p>
+              <p className="mt-2 text-zinc-300">WhatsApp veya e-posta ile hızlıca ulaş.</p>
 
               <div className="mt-4 flex flex-col gap-2 text-sm text-zinc-200">
                 <a
