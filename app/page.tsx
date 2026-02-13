@@ -3,6 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+
 
 const WHATSAPP_NUMBER = "905456952696";
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}`;
@@ -355,53 +357,52 @@ export default function Home() {
           />
         </div>
       </section>
-
-    {/* Portfolio */}
+{/* Portfolio */}
 <section id="portfoy" className="mx-auto max-w-6xl px-6 py-12">
   <h2 className="text-2xl font-semibold">Portföy</h2>
   <p className="mt-2 text-zinc-300">Birkaç örnek çalışma.</p>
 
   {(() => {
     const items = [
-      { title: "E-Ticaret", file: "/portfolio/eticaret.png" },
-      { title: "Klinik", file: "/portfolio/klinik.png" },
-      { title: "Gayrimenkul", file: "/portfolio/gayrimenkul.png" },
-      { title: "Restoran", file: "/portfolio/restoran.png" },
-      { title: "Hukuk", file: "/portfolio/hukuk.png" },
-      { title: "Danışmanlık", file: "/portfolio/danismanlik.png" },
+      { title: "E-Ticaret", slug: "eticaret", file: "/portfolio/eticaret.png" },
+      { title: "Klinik", slug: "klinik", file: "/portfolio/klinik.png" },
+      { title: "Gayrimenkul", slug: "gayrimenkul", file: "/portfolio/gayrimenkul.png" },
+      { title: "Restoran", slug: "restoran", file: "/portfolio/restoran.png" },
+      { title: "Hukuk", slug: "hukuk", file: "/portfolio/hukuk.png" },
+      { title: "Danışmanlık", slug: "danismanlik", file: "/portfolio/danismanlik.png" },
     ];
 
     return (
       <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         {items.map((it) => (
-          <div key={it.title} className="group rounded-3xl border border-white/10 bg-[#161A22] p-4">
-           <div className="aspect-[16/10] group relative flex items-center justify-center overflow-hidden rounded-2xl bg-[#0F1115] p-6 transition duration-500 hover:-translate-y-2 border border-white/10">
+          <Link key={it.slug} href={`/portfolio/${it.slug}`} className="block">
+            <div className="group rounded-3xl border border-white/10 bg-[#161A22] p-4 cursor-pointer">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#0F1115] p-6 border border-white/10 transition duration-500 group-hover:-translate-y-2">
+                {/* Glow efekti */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-violet-600/10 opacity-0 transition duration-500 group-hover:opacity-100" />
 
-  {/* Glow efekti */}
-  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-violet-600/10 opacity-0 transition duration-500 group-hover:opacity-100" />
+                {/* Görsel */}
+                <img
+                  src={it.file}
+                  alt={it.title}
+                  className="relative z-10 max-h-full max-w-full object-contain transition duration-700 group-hover:scale-125"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                    console.error("Görsel yüklenemedi:", it.file);
+                  }}
+                />
+              </div>
 
-  {/* Görsel */}
-  <img
-    src={it.file}
-    alt={it.title}
-    className="relative z-10 max-h-full max-w-full object-contain transition duration-700 group-hover:scale-125"
-    onError={(e) => {
-      (e.currentTarget as HTMLImageElement).style.display = "none";
-      console.error("Görsel yüklenemedi:", it.file);
-    }}
-  />
-
-</div>
-
-
-            <div className="mt-3 text-sm text-zinc-200">{it.title}</div>
-            <div className="mt-1 text-xs text-zinc-400">Kurumsal / Landing / Portföy</div>
-          </div>
+              <div className="mt-3 text-sm text-zinc-200">{it.title}</div>
+              <div className="mt-1 text-xs text-zinc-400">Kurumsal / Landing / Portföy</div>
+            </div>
+          </Link>
         ))}
       </div>
     );
   })()}
 </section>
+
 
 
       {/* Process */}
