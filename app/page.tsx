@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-
+import { useEffect } from "react";
 
 const WHATSAPP_NUMBER = "905456952696";
 const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}`;
@@ -63,26 +63,272 @@ const portfolioItems = [
   },
 ];
 
-// ✅ Logo seçenekleri (3 adet). Birini seçmek için aşağıdaki `ACTIVE_LOGO` değişkenini 1/2/3 yap.
-function LogoMark1() {
-  // Minimal “P” hissi veren geometrik icon
+
+/**
+ * WebMarket Pro – Premium cart logo
+ * Animasyon:
+ * - 0%    : solda, görünür
+ * - 55%   : sağa gider (teker döner), görünür
+ * - 62%   : fade-out
+ * - 68%   : başa teleport (görünmez)
+ * - 82%   : bekle (görünmez)
+ * - 100%  : fade-in (başta)
+ */
+export function LogoIconAnimated({
+  size = 52,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
+  const cycle = 10.2; // toplam döngü
+  const xTravel = 150; // “site ortasına kadar” hissi için (120–190 arası oynayabilirsin)
+
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+    <motion.svg
+      width={size}
+      height={size}
+      viewBox="0 0 128 128"
+      aria-hidden="true"
+      className={className}
+      style={{ filter: "drop-shadow(0px 10px 18px rgba(0,0,0,.35))" }}
+    >
       <defs>
-        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="rgb(37,99,235)" stopOpacity="0.9" />
-          <stop offset="1" stopColor="rgb(124,58,237)" stopOpacity="0.7" />
+        {/* Turuncu – 3D hissi */}
+        <linearGradient id="wm_orange" x1="18" y1="18" x2="112" y2="100" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#FF8A52" />
+          <stop offset="0.55" stopColor="#FF4B12" />
+          <stop offset="1" stopColor="#DF3410" />
         </linearGradient>
+
+        {/* Turuncu emboss (iç gölge + highlight) */}
+        <filter id="wm_emboss" x="-35%" y="-35%" width="170%" height="170%">
+          <feOffset dx="1.2" dy="1.8" in="SourceAlpha" result="off1" />
+          <feGaussianBlur in="off1" stdDeviation="1.9" result="blur1" />
+          <feComposite in="blur1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="innerShadow" />
+          <feColorMatrix
+            in="innerShadow"
+            type="matrix"
+            values="
+              0 0 0 0 0
+              0 0 0 0 0
+              0 0 0 0 0
+              0 0 0 .45 0"
+            result="innerShadowColor"
+          />
+
+          <feOffset dx="-1.2" dy="-1.2" in="SourceAlpha" result="off2" />
+          <feGaussianBlur in="off2" stdDeviation="1.6" result="blur2" />
+          <feComposite in="blur2" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="innerLight" />
+          <feColorMatrix
+            in="innerLight"
+            type="matrix"
+            values="
+              1 0 0 0 1
+              0 1 0 0 1
+              0 0 1 0 1
+              0 0 0 .30 0"
+            result="innerLightColor"
+          />
+
+          <feMerge>
+            <feMergeNode in="innerShadowColor" />
+            <feMergeNode in="innerLightColor" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+
+        {/* Alt parça – açık cam rengi */}
+        <linearGradient id="wm_light" x1="40" y1="84" x2="102" y2="114" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#E5E7EB" />
+          <stop offset="1" stopColor="#FFFFFF" />
+        </linearGradient>
+
+        {/* Sepet içi shine */}
+        <linearGradient id="wm_shine" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="rgba(255,255,255,0)" />
+          <stop offset="0.5" stopColor="rgba(255,255,255,0.45)" />
+          <stop offset="1" stopColor="rgba(255,255,255,0)" />
+        </linearGradient>
+
+        <clipPath id="wm_clip_cart">
+          <path d="M34 44 H108 L95 88 H44 Z" />
+        </clipPath>
       </defs>
-      <rect x="2" y="2" width="20" height="20" rx="7" fill="url(#g1)" />
-      <path
-        d="M9 16V8h4.2c1.8 0 3 1.1 3 2.7S15 13.4 13.2 13.4H11.2V16H9Z"
-        fill="rgba(255,255,255,0.92)"
-      />
-    </svg>
+
+      {/* ✅ Hareket eden grup */}
+      <motion.g
+        animate={{
+          x: [0, xTravel, xTravel, 0, 0, 0],
+          opacity: [1, 1, 0, 0, 0, 1],
+        }}
+        transition={{
+          duration: cycle,
+          times: [0, 0.55, 0.62, 0.68, 0.82, 1],
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        {/* Sap (daha sepet gibi) */}
+        <path
+          d="M28 44
+             C28 30, 44 24, 56 32
+             L64 38
+             C67 40, 65 45, 61 44
+             L54 41
+             C46 37, 36 38, 34 46
+             L34 50
+             L28 50
+             Z"
+          fill="url(#wm_orange)"
+          filter="url(#wm_emboss)"
+        />
+
+        {/* Üst ağız / rim */}
+        <path
+          d="M32 44
+             H110
+             C114 44, 116 48, 114 51
+             L112 55
+             H36
+             L32 46
+             Z"
+          fill="rgba(255,255,255,0.20)"
+          opacity="0.9"
+        />
+
+        {/* Sepet gövde (daha net form) */}
+        <path
+          d="M34 44
+             H108
+             L95 88
+             H44
+             Z"
+          fill="url(#wm_orange)"
+          filter="url(#wm_emboss)"
+        />
+
+        {/* İç panel çizgileri (daha “sepet” hissi) */}
+        <path d="M46 54 H98" stroke="rgba(255,255,255,0.14)" strokeWidth="3" strokeLinecap="round" />
+        <path d="M49 64 H95" stroke="rgba(255,255,255,0.12)" strokeWidth="3" strokeLinecap="round" />
+        <path d="M52 74 H92" stroke="rgba(255,255,255,0.10)" strokeWidth="3" strokeLinecap="round" />
+
+        {/* ✅ Kod ikonu </> — PATH ile (tam ortalı, text yok) */}
+        <g opacity="0.95">
+          {/* < */}
+          <path
+            d="M63 58 L53 66 L63 74"
+            fill="none"
+            stroke="rgba(10,10,10,0.92)"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* / */}
+          <path
+            d="M70 56 L64 78"
+            fill="none"
+            stroke="rgba(10,10,10,0.92)"
+            strokeWidth="6"
+            strokeLinecap="round"
+          />
+          {/* > */}
+          <path
+            d="M75 58 L85 66 L75 74"
+            fill="none"
+            stroke="rgba(10,10,10,0.92)"
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        {/* Alt ayak / çizgi (açık renk) */}
+        <path
+          d="M44 88
+             H95
+             C98 88, 101 87, 103 84
+             L108 76
+             H54
+             C48 76, 44 80, 44 86
+             Z"
+          fill="url(#wm_light)"
+          opacity="0.98"
+        />
+
+        {/* ✅ Tekerler: sadece yürürken dönsün (0->55%) sonra dursun */}
+        <motion.g
+          animate={{ rotate: [0, 720, 720, 720, 720, 720] }}
+          transition={{
+            duration: cycle,
+            times: [0, 0.55, 0.62, 0.68, 0.82, 1],
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          style={{ transformOrigin: "58px 104px" }}
+        >
+          <circle cx="58" cy="104" r="10" fill="#F3F4F6" />
+          <circle cx="58" cy="104" r="5" fill="rgba(0,0,0,0.12)" />
+          <path d="M58 94 V114" stroke="rgba(0,0,0,0.14)" strokeWidth="2" strokeLinecap="round" />
+          <path d="M48 104 H68" stroke="rgba(0,0,0,0.14)" strokeWidth="2" strokeLinecap="round" />
+        </motion.g>
+
+        <motion.g
+          animate={{ rotate: [0, 720, 720, 720, 720, 720] }}
+          transition={{
+            duration: cycle,
+            times: [0, 0.55, 0.62, 0.68, 0.82, 1],
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          style={{ transformOrigin: "92px 104px" }}
+        >
+          <circle cx="92" cy="104" r="10" fill="#F3F4F6" />
+          <circle cx="92" cy="104" r="5" fill="rgba(0,0,0,0.12)" />
+          <path d="M92 94 V114" stroke="rgba(0,0,0,0.14)" strokeWidth="2" strokeLinecap="round" />
+          <path d="M82 104 H102" stroke="rgba(0,0,0,0.14)" strokeWidth="2" strokeLinecap="round" />
+        </motion.g>
+
+        {/* Shine: sadece yürürken çalışsın; sonra görünmez */}
+        <motion.rect
+          x="-60"
+          y="30"
+          width="70"
+          height="120"
+          fill="url(#wm_shine)"
+          clipPath="url(#wm_clip_cart)"
+          opacity={0.55}
+          transform="rotate(18 64 64)"
+          animate={{ x: [-60, 170, 170, 170, 170, 170] }}
+          transition={{
+            duration: cycle,
+            times: [0, 0.55, 0.62, 0.68, 0.82, 1],
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </motion.g>
+    </motion.svg>
   );
 }
 
+export function LogoMark1({ iconSize = 52 }: { iconSize?: number }) {
+  return (
+    <span className="inline-flex items-center gap-3">
+      <motion.span
+        whileHover={{ scale: 1.04 }}
+        transition={{ type: "spring", stiffness: 260, damping: 16 }}
+      >
+        <LogoIconAnimated size={iconSize} />
+      </motion.span>
+
+      <span className="text-sm font-semibold tracking-tight">
+        <span className="text-zinc-100">WEBMARKET</span>
+        <span className="ml-1 text-[#FF5A1F]">PRO</span>
+      </span>
+    </span>
+  );
+}
 function LogoMark2() {
   // Minimal “WP” monogram vibe
   return (
@@ -143,7 +389,132 @@ function WhatsAppIcon({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
+function HeroShowcase() {
+  const slides = [
+    { title: "E-Ticaret", file: "/portfolio/eticaret.png" },
+    { title: "Klinik", file: "/portfolio/klinik.png" },
+    { title: "Gayrimenkul", file: "/portfolio/gayrimenkul.png" },
+    { title: "Restoran", file: "/portfolio/restoran.png" },
+    { title: "Hukuk", file: "/portfolio/hukuk.png" },
+    { title: "Danışmanlık", file: "/portfolio/danismanlik.png" },
+  ];
 
+  const [i, setI] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setI((p) => (p + 1) % slides.length), 2600);
+    return () => clearInterval(t);
+  }, []);
+
+  const current = slides[i];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.985 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.55 }}
+      className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#161A22] p-6"
+    >
+      {/* premium glow */}
+      <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-blue-600/15 blur-3xl" />
+      <div className="absolute -bottom-28 -left-28 h-64 w-64 rounded-full bg-violet-600/10 blur-3xl" />
+
+      <div className="relative rounded-2xl border border-white/10 bg-white/5 p-5">
+        {/* Browser bar */}
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
+            <span className="h-2.5 w-2.5 rounded-full bg-white/18" />
+            <span className="h-2.5 w-2.5 rounded-full bg-white/12" />
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-zinc-400">
+            <span className="rounded-full border border-white/10 bg-black/20 px-2 py-1">
+              Canlı Demo
+            </span>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">{current.title}</span>
+          </div>
+        </div>
+
+        {/* Showcase */}
+        <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-[#0F1115]">
+          <div className="relative aspect-[16/10]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current.file}
+                initial={{ opacity: 0, scale: 1.01 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.995 }}
+                transition={{ duration: 0.35 }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={current.file}
+                  alt={current.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            {/* UI overlays (satış hissi) */}
+            <div className="pointer-events-none absolute inset-0">
+              {/* CTA pulse */}
+              <motion.div
+                className="absolute bottom-4 left-4 rounded-full bg-white px-3 py-2 text-xs font-semibold text-zinc-950 shadow-lg"
+                animate={{ scale: [1, 1.06, 1] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              >
+                Teklif Al
+              </motion.div>
+
+              {/* mini badge */}
+              <div className="absolute top-47 left-2 rounded-full border border-white/10 bg-black/30 px-3 py-1 text-[11px] text-zinc-200">
+                %50 İndirim • Sınırlı Süre
+              </div>
+
+              {/* moving cursor */}
+              <motion.div
+                className="absolute h-3 w-3 rounded-full bg-white/80 shadow"
+                animate={{
+                  x: [20, 200, 260, 120, 20],
+                  y: [30, 40, 160, 220, 30],
+                }}
+                transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* subtle gradient vignette */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+            </div>
+          </div>
+
+          {/* “mini analytics” strip */}
+          <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">
+            <div className="text-xs text-zinc-300">
+              <span className="text-zinc-400">Sektör:</span> {current.title}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setI(idx)}
+                  className={[
+                    "h-1.5 w-6 rounded-full transition",
+                    idx === i ? "bg-white/70" : "bg-white/15 hover:bg-white/25",
+                  ].join(" ")}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 export default function Home() {
   const plans: Plan[] = useMemo(
     () => [
@@ -197,7 +568,7 @@ export default function Home() {
   const closePurchase = () => setPurchaseOpen(false);
 
   const whatsappMessage = useMemo(() => {
-    const base = "Merhaba Web Pazarı, ";
+    const base = "Merhaba Web Marketı, ";
     if (!selectedPlan) return encodeURIComponent(base + "satın alma hakkında bilgi almak istiyorum.");
     return encodeURIComponent(
       `${base}"${selectedPlan.title}" paketi için satın alma sürecini başlatmak istiyorum. Fiyat: ${selectedPlan.price}`
@@ -205,7 +576,7 @@ export default function Home() {
   }, [selectedPlan]);
 
   const whatsappBuyLink = `${WHATSAPP_LINK}?text=${whatsappMessage}`;
-  const mailSubject = encodeURIComponent("Web Pazarı - Satın Alma");
+  const mailSubject = encodeURIComponent("Web Marketı - Satın Alma");
   const mailBody = encodeURIComponent(
     selectedPlan
       ? `Merhaba,\n\n"${selectedPlan.title}" paketi için satın alma sürecini başlatmak istiyorum.\nFiyat: ${selectedPlan.price}\n\nİsim:\nTelefon:\nNot:\n`
@@ -220,7 +591,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="#" className="flex items-center gap-2">
             <LogoMark />
-            <span className="text-sm font-semibold tracking-tight">Web Pazarı</span>
+            <span className="text-sm font-semibold tracking-tight"> </span>
           </a>
 
           <nav className="hidden items-center gap-6 text-sm text-zinc-300 md:flex">
@@ -245,14 +616,15 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pt-14 pb-10">
         <div className="grid gap-10 md:grid-cols-2 md:items-center">
           <div>
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55 }}
-              className="text-4xl font-semibold leading-tight md:text-6xl"
-            >
+           <motion.a
+  href="#paketler"
+  initial={{ opacity: 0, scale: 0.985 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 0.55 }}
+  className="relative block cursor-pointer overflow-hidden rounded-3xl border border-white/10 bg-[#161A22] p-6 transition hover:-translate-y-1"
+>
               Web siten <span className="text-zinc-300">satışa dönüşsün.</span>
-            </motion.h1>
+            </motion.a>
 
             <motion.p
               initial={{ opacity: 0, y: 10 }}
@@ -261,7 +633,7 @@ export default function Home() {
               className="mt-5 max-w-xl text-zinc-300"
             >
               Stratejik tasarım, hızlı teslim ve güçlü dijital konumlandırma.
-              7–14 gün içinde yayında.
+              z gün içinde yayında.
             </motion.p>
 
             <motion.div
@@ -293,41 +665,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right premium preview */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#161A22] p-6"
-          >
-            <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-blue-600/15 blur-3xl" />
-            <div className="absolute -bottom-28 -left-28 h-64 w-64 rounded-full bg-violet-600/10 blur-3xl" />
-
-            <div className="relative rounded-2xl border border-white/10 bg-white/5 p-5">
-              {/* Browser top bar */}
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/18" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/12" />
-                </div>
-                <div className="text-xs text-zinc-400">Örnek Önizleme</div>
-              </div>
-
-              {/* Preview surface */}
-              <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
-                <div className="h-28 bg-gradient-to-br from-blue-600/25 via-white/5 to-violet-600/15" />
-                <div className="bg-[#0F1115] p-4">
-                  <div className="h-3 w-32 rounded bg-white/10" />
-                  <div className="mt-3 grid gap-2">
-                    <div className="h-8 rounded-lg bg-white/5" />
-                    <div className="h-8 rounded-lg bg-white/5" />
-                    <div className="h-16 rounded-lg bg-white/5" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+{/* Right premium preview -> GERÇEK PORTFÖY + CANLI DEMO */}
+<HeroShowcase />
         </div>
       </section>
 
@@ -375,29 +714,27 @@ export default function Home() {
     return (
       <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         {items.map((it) => (
-          <Link key={it.slug} href={`/portfolio/${it.slug}`} className="block">
-            <div className="group rounded-3xl border border-white/10 bg-[#161A22] p-4 cursor-pointer">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-[#0F1115] p-6 border border-white/10 transition duration-500 group-hover:-translate-y-2">
-                {/* Glow efekti */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-violet-600/10 opacity-0 transition duration-500 group-hover:opacity-100" />
+  <div key={it.title} className="group rounded-3xl border border-white/10 bg-[#161A22] p-4">
+    <div className="aspect-[16/10] group relative flex items-center justify-center overflow-hidden rounded-2xl bg-[#0F1115] p-6 transition duration-500 hover:-translate-y-2 border border-white/10">
+      {/* Glow efekti */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-violet-600/10 opacity-0 transition duration-500 group-hover:opacity-100" />
 
-                {/* Görsel */}
-                <img
-                  src={it.file}
-                  alt={it.title}
-                  className="relative z-10 max-h-full max-w-full object-contain transition duration-700 group-hover:scale-125"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                    console.error("Görsel yüklenemedi:", it.file);
-                  }}
-                />
-              </div>
+      {/* Görsel */}
+      <img
+        src={it.file}
+        alt={it.title}
+        className="relative z-10 max-h-full max-w-full object-contain transition duration-700 group-hover:scale-125"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = "none";
+          console.error("Görsel yüklenemedi:", it.file);
+        }}
+      />
+    </div>
 
-              <div className="mt-3 text-sm text-zinc-200">{it.title}</div>
-              <div className="mt-1 text-xs text-zinc-400">Kurumsal / Landing / Portföy</div>
-            </div>
-          </Link>
-        ))}
+    <div className="mt-3 text-sm text-zinc-200">{it.title}</div>
+    <div className="mt-1 text-xs text-zinc-400">Kurumsal / Landing / Portföy</div>
+  </div>
+))}
       </div>
     );
   })()}
@@ -486,7 +823,7 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-white/5 py-10 text-center text-sm text-zinc-500">
-        © {new Date().getFullYear()} Web Pazarı
+        © {new Date().getFullYear()} 
       </footer>
 
       {/* Fixed WhatsApp button (ikonlu) */}
