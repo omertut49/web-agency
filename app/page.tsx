@@ -438,14 +438,14 @@ export default function Home() {
     []
   );
 
-  const portfolio = [
-    { title: "Dosya", slug: "file", file: "/file.svg", demoUrl: "https://example-demo.vercel.app" },
-    { title: "Dünya", slug: "globe", file: "/globe.svg", demoUrl: "https://example-demo2.vercel.app" },
-    { title: "Next", slug: "next", file: "/next.svg", demoUrl: "https://example-demo3.vercel.app" },
-    { title: "Vercel", slug: "vercel", file: "/vercel.svg", demoUrl: "https://example-demo4.vercel.app" },
-    { title: "Window", slug: "window", file: "/window.svg", demoUrl: "https://example-demo5.vercel.app" },
-  ];
-
+ const portfolio = [
+  { title: "E-Ticaret", slug: "eticaret", file: "/portfolio/eticaret.png" },
+  { title: "Klinik", slug: "klinik", file: "/portfolio/klinik.png" },
+  { title: "Gayrimenkul", slug: "gayrimenkul", file: "/portfolio/gayrimenkul.png" },
+  { title: "Restoran", slug: "restoran", file: "/portfolio/restoran.png" },
+  { title: "Hukuk", slug: "hukuk", file: "/portfolio/hukuk.png" },
+  { title: "Danışmanlık", slug: "danismanlik", file: "/portfolio/danismanlik.png" },
+];
   const [purchaseOpen, setPurchaseOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
@@ -704,13 +704,11 @@ export default function Home() {
 
                 {it.demoUrl ? (
                   <a
-                    href={it.demoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border border-white/12 bg-white/5 px-4 py-2 text-xs font-semibold text-white
-                               hover:border-white/20 hover:bg-white/10 transition"
-                  >
-                    Demo
+                    href={`/demo/${it.slug}`}
+  className="rounded-full border border-white/12 bg-white/5 px-4 py-2 text-xs font-semibold text-white
+             hover:border-white/20 hover:bg-white/10 transition"
+>
+  Demo
                   </a>
                 ) : null}
               </div>
