@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    // public klasöründeki local görseller için ekstra ayar gerekmiyor
+  },
 };
 
 export default nextConfig;

@@ -1,259 +1,369 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import { THEMES, ThemeSlug } from "@/lib/themes";
 
-type Demo = {
+type DemoConfig = {
   title: string;
+  tagline: string;
   category: string;
-  description: string;
-  image: string; // preview image
-  bullets: string[];
-  stack: string[];
-  delivery: string;
-  priceHint: string;
+  image: string;
+  primaryCta: string;
+  sections: { title: string; desc: string }[];
+  features: string[];
+  stats: { label: string; value: string }[];
 };
 
-const DEMOS: Record<string, Demo> = {
+const DEMOS: Record<ThemeSlug, DemoConfig> = {
   eticaret: {
-    title: "E-Ticaret",
-    category: "Mağaza / Ürün / Sepet",
-    description:
-      "Modern ürün vitrinleri, hızlı checkout ve SEO temeliyle satış odaklı e-ticaret arayüzü.",
-    image: "/portfolio/eticaret.png",
-    bullets: ["Kategori & ürün listeleme", "Sepet / checkout akışı", "Kampanya banner alanları", "SEO altyapısı"],
-    stack: ["Next.js", "Tailwind", "Framer Motion"],
-    delivery: "7–14 gün",
-    priceHint: "₺7.500+",
+    ...THEMES.eticaret,
+    primaryCta: "Sepete Ekle",
+    stats: [
+      { label: "Dönüşüm", value: "+%18" },
+      { label: "Hız Skoru", value: "95" },
+      { label: "SEO", value: "A+" }
+    ],
+    sections: [
+      { title: "Öne Çıkan Ürünler", desc: "Kampanya ve hızlı satın alma akışı." },
+      { title: "Güven Blokları", desc: "İade, kargo, güvenli ödeme rozetleri." },
+      { title: "Hızlı Checkout", desc: "Minimum adım, maksimum dönüşüm." }
+    ],
+    features: ["Ürün Grid + Filtre", "Sepet / Checkout", "Kampanya Banner’ları", "Ödeme/İletişim CTA"]
   },
   klinik: {
-    title: "Klinik / Estetik",
-    category: "Randevu / Hizmet / Yorum",
-    description:
-      "Randevu odaklı kurumsal görünüm. Hizmet sayfaları, doktor tanıtımı ve güven veren tasarım.",
-    image: "/portfolio/klinik.png",
-    bullets: ["Randevu CTA alanları", "Hizmet/uzmanlık sayfaları", "Öncesi-sonrası vitrin", "Güven blokları"],
-    stack: ["Next.js", "Tailwind", "Framer Motion"],
-    delivery: "7–14 gün",
-    priceHint: "₺7.500+",
+    ...THEMES.klinik,
+    primaryCta: "Randevu Al",
+    stats: [
+      { label: "Lead", value: "+%24" },
+      { label: "Güven", value: "5★" },
+      { label: "Mobil", value: "Süper" }
+    ],
+    sections: [
+      { title: "Hizmetler", desc: "Net başlıklar, hızlı karar alanları." },
+      { title: "Uzman Kadro", desc: "Doktor/ekip tanıtımı güveni artırır." },
+      { title: "Öncesi / Sonrası", desc: "Vitrin alanı ile ikna hızlanır." }
+    ],
+    features: ["Randevu CTA", "Hizmet Sayfaları", "Yorum/Referans", "Harita + İletişim"]
   },
   gayrimenkul: {
-    title: "Gayrimenkul",
-    category: "İlan / Filtre / Form",
-    description:
-      "İlan vitrinleri, filtre alanları ve güçlü bir “teklif al” akışı ile dönüşüm odaklı tasarım.",
-    image: "/portfolio/gayrimenkul.png",
-    bullets: ["İlan kartları & galeri", "Filtre alanı (tasarımsal)", "Form/WhatsApp lead", "Hızlı yayın yapısı"],
-    stack: ["Next.js", "Tailwind", "Framer Motion"],
-    delivery: "7–14 gün",
-    priceHint: "₺7.500+",
+    ...THEMES.gayrimenkul,
+    primaryCta: "Teklif Al",
+    stats: [
+      { label: "Talep", value: "+%31" },
+      { label: "İlan", value: "120+" },
+      { label: "Hız", value: "93" }
+    ],
+    sections: [
+      { title: "Popüler İlanlar", desc: "Kart yapısı ile hızlı göz taraması." },
+      { title: "Filtre Alanı", desc: "Fiyat / oda / konum gibi filtreler." },
+      { title: "Teklif Formu", desc: "WhatsApp + form ile lead topla." }
+    ],
+    features: ["İlan Kartları", "Filtre UI", "WhatsApp Lead", "Bölge Vitrini"]
   },
   restoran: {
-    title: "Restoran / Kafe",
-    category: "Menü / Rezervasyon / Harita",
-    description:
-      "Menü vurgulu premium görünüm. Rezervasyon CTA ve Instagram-style vitrin alanları.",
-    image: "/portfolio/restoran.png",
-    bullets: ["Menü vitrin alanı", "Rezervasyon CTA", "Konum & harita", "Etkinlik/duyuru blokları"],
-    stack: ["Next.js", "Tailwind", "Framer Motion"],
-    delivery: "7–14 gün",
-    priceHint: "₺7.500+",
+    ...THEMES.restoran,
+    primaryCta: "Rezervasyon",
+    stats: [
+      { label: "Rezervasyon", value: "+%22" },
+      { label: "Harita", value: "1 tık" },
+      { label: "Menü", value: "Hızlı" }
+    ],
+    sections: [
+      { title: "İmza Lezzetler", desc: "Öne çıkan menü alanları." },
+      { title: "Atmosfer", desc: "Fotoğraf vitrinleri ile premium his." },
+      { title: "Rezervasyon CTA", desc: "Tek ekranda karar + aksiyon." }
+    ],
+    features: ["Menü Bölümü", "Rezervasyon CTA", "Konum/Harita", "Instagram Vitrini"]
   },
   hukuk: {
-    title: "Hukuk Bürosu",
-    category: "Kurumsal / Güven / Hizmet",
-    description:
-      "Güven odaklı, sade ve güçlü kurumsal tasarım. Hizmetler, ekip ve iletişim akışı net.",
-    image: "/portfolio/hukuk.png",
-    bullets: ["Hizmet sayfaları", "Uzmanlık alanları", "Güven blokları", "Hızlı iletişim"],
-    stack: ["Next.js", "Tailwind", "Framer Motion"],
-    delivery: "7–14 gün",
-    priceHint: "₺7.500+",
+    ...THEMES.hukuk,
+    primaryCta: "Danışma Talebi",
+    stats: [
+      { label: "Güven", value: "A+" },
+      { label: "Kurumsal", value: "Pro" },
+      { label: "İletişim", value: "Hızlı" }
+    ],
+    sections: [
+      { title: "Uzmanlık Alanları", desc: "Hizmet listesi net ve düzenli." },
+      { title: "Ekip", desc: "Profesyonel tanıtım güveni artırır." },
+      { title: "İletişim", desc: "WhatsApp + form dönüşümü yükseltir." }
+    ],
+    features: ["Hizmet Alanları", "Ekip Tanıtımı", "Referans Alanı", "Hızlı İletişim CTA"]
   },
   danismanlik: {
-    title: "Danışmanlık",
-    category: "Kurumsal / Teklif / İçerik",
-    description:
-      "Teklif toplamaya odaklı landing yapısı. Başarı hikayeleri ve süreç anlatımı güçlü.",
-    image: "/portfolio/danismanlik.png",
-    bullets: ["Teklif toplayan hero", "Süreç/çözüm blokları", "Referans alanları", "Form/WhatsApp CTA"],
-    stack: ["Next.js", "Tailwind", "Framer Motion"],
-    delivery: "7–14 gün",
-    priceHint: "₺7.500+",
-  },
+    ...THEMES.danismanlik,
+    primaryCta: "Teklif İste",
+    stats: [
+      { label: "Dönüşüm", value: "+%19" },
+      { label: "İkna", value: "Yüksek" },
+      { label: "Mobil", value: "Akıcı" }
+    ],
+    sections: [
+      { title: "Çözüm Paketleri", desc: "Hedefe göre seçenekler." },
+      { title: "Süreç", desc: "Adım adım güven veren akış." },
+      { title: "Başarı Hikayeleri", desc: "Referans ile ikna artar." }
+    ],
+    features: ["Teklif CTA", "Süreç Bölümü", "Referans/Yorum", "Sık Sorulanlar"]
+  }
 };
 
-function chipClass() {
-  return "rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-200 ring-1 ring-white/5";
+function Chip({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-zinc-200 ring-1 ring-white/5">
+      {children}
+    </span>
+  );
 }
 
-export default function DemoPage({
-  params,
-  searchParams,
+function NeonButton({
+  children,
+  href,
+  variant = "primary"
 }: {
-  params: { slug: string };
-  searchParams?: { plan?: string };
+  children: React.ReactNode;
+  href?: string;
+  variant?: "primary" | "ghost";
 }) {
-  const demo = DEMOS[params.slug];
-  if (!demo) return notFound();
+  const base =
+    "inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold transition";
+  const cls =
+    variant === "primary"
+      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-lg shadow-blue-600/25 ring-1 ring-white/10 hover:opacity-95"
+      : "border border-white/12 bg-white/5 text-white hover:border-white/20 hover:bg-white/10";
 
-  const plan = searchParams?.plan ?? "pro";
+  if (href) return <Link href={href} className={`${base} ${cls}`}>{children}</Link>;
+  return <button className={`${base} ${cls}`}>{children}</button>;
+}
+
+function FakePhoneFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="card soft-ring rounded-[28px] p-3 sm:p-4">
+      <div className="rounded-[22px] border border-white/10 bg-black/35 overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function DemoHeader({ title }: { title: string }) {
+  return (
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-black/35 backdrop-blur-xl">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+        <Link href="/" className="text-sm font-semibold text-white/90 hover:text-white">
+          ← WebMarket Pro
+        </Link>
+
+        <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-300">
+          <Chip>{title}</Chip>
+          <Chip>Mobil Uyumlu</Chip>
+          <Chip>Neon Premium</Chip>
+        </div>
+
+        <NeonButton href="#cta" variant="primary">
+          Teklif Al
+        </NeonButton>
+      </div>
+    </header>
+  );
+}
+
+function StatsRow({ stats }: { stats: DemoConfig["stats"] }) {
+  return (
+    <div className="mt-5 grid grid-cols-3 gap-2">
+      {stats.map((s) => (
+        <div key={s.label} className="card soft-ring rounded-2xl p-3 text-center">
+          <div className="text-lg font-semibold">{s.value}</div>
+          <div className="mt-1 text-[11px] text-zinc-400">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SectionGrid({ sections }: { sections: DemoConfig["sections"] }) {
+  return (
+    <div className="mt-6 grid gap-3 sm:grid-cols-3">
+      {sections.map((s) => (
+        <div key={s.title} className="card soft-ring rounded-2xl p-4">
+          <div className="text-sm font-semibold">{s.title}</div>
+          <div className="mt-1 text-sm text-zinc-300">{s.desc}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FeatureList({ items }: { items: string[] }) {
+  return (
+    <div className="mt-6 card soft-ring rounded-2xl p-4">
+      <div className="text-sm font-semibold">Özellikler</div>
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2 text-sm text-zinc-300">
+        {items.map((x) => (
+          <li key={x} className="rounded-xl border border-white/10 bg-black/25 px-3 py-2">
+            • {x}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ECommerceInner({ cfg }: { cfg: DemoConfig }) {
+  const products = useMemo(
+    () => [
+      { name: "Neon Hoodie", price: "₺1.490", tag: "Yeni" },
+      { name: "Street Sneaker", price: "₺2.950", tag: "Popüler" },
+      { name: "Minimal Watch", price: "₺3.250", tag: "%20" },
+      { name: "Tech Backpack", price: "₺1.980", tag: "Trend" }
+    ],
+    []
+  );
+
+  const [cart, setCart] = useState(0);
+
+  return (
+    <div className="p-4">
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-blue-600/15 via-transparent to-violet-600/12" />
+        <div className="relative">
+          <div className="flex items-center justify-between">
+            <div className="text-sm font-semibold">{cfg.title}</div>
+            <div className="rounded-full border border-white/10 bg-black/30 px-3 py-1 text-xs text-zinc-200">
+              Sepet: <span className="font-semibold">{cart}</span>
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-zinc-300">{cfg.tagline}</div>
+
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {products.map((p) => (
+              <button
+                key={p.name}
+                onClick={() => setCart((c) => c + 1)}
+                className="text-left rounded-2xl border border-white/10 bg-black/25 p-3 hover:bg-white/5 transition"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="text-sm font-semibold">{p.name}</div>
+                  <span className="text-[11px] rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-zinc-200">
+                    {p.tag}
+                  </span>
+                </div>
+                <div className="mt-1 text-xs text-zinc-400">{p.price}</div>
+                <div className="mt-3 inline-flex rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-3 py-1 text-[11px] font-semibold text-white">
+                  {cfg.primaryCta}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <FeatureList items={cfg.features} />
+    </div>
+  );
+}
+
+function GenericInner({ cfg }: { cfg: DemoConfig }) {
+  return (
+    <div className="p-4">
+      <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+        <div className="relative aspect-[16/9]">
+          <Image src={cfg.image} alt={cfg.title} fill className="object-cover" sizes="100vw" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+          <div className="absolute bottom-3 left-3 right-3">
+            <div className="text-lg font-semibold">{cfg.title}</div>
+            <div className="text-xs text-zinc-300">{cfg.tagline}</div>
+          </div>
+        </div>
+        <div className="p-4">
+          <FeatureList items={cfg.features} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function DemoPage({ params }: { params: { slug: string } }) {
+  const slug = params.slug as ThemeSlug;
+  const cfg = DEMOS[slug];
+  if (!cfg) return notFound();
 
   const WHATSAPP_NUMBER = "905456952696";
   const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}`;
   const message = encodeURIComponent(
-    `Merhaba WebMarket Pro,
-
-"${demo.title}" canlı demosunu inceledim.
-Plan: ${plan.toUpperCase()}
-
-Teklif almak istiyorum.`
+    `Merhaba WebMarket Pro,\n\n"${cfg.category}" canlı demoyu inceledim (${slug}).\nTeklif almak istiyorum.`
   );
 
+  const inner = slug === "eticaret" ? <ECommerceInner cfg={cfg} /> : <GenericInner cfg={cfg} />;
+
   return (
-    <main className="min-h-screen neon-bg neon-noise neon-vignette text-zinc-100">
-      {/* Top bar */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-black/35 backdrop-blur-xl">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
-          <Link href="/" className="text-sm font-semibold text-white/90 hover:text-white">
-            ← Ana Sayfa
-          </Link>
+    <main className="min-h-screen neon-bg neon-noise neon-vignette relative text-zinc-100">
+      <DemoHeader title={cfg.category} />
 
-          <a
-            href={`${WHATSAPP_LINK}?text=${message}`}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-4 py-2 text-sm font-semibold text-white
-                       shadow-lg shadow-blue-600/25 ring-1 ring-white/10 hover:opacity-95 transition"
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 pb-10">
+        <div className="grid gap-7 lg:grid-cols-2 lg:items-start">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="card soft-ring rounded-3xl p-6 sm:p-8"
           >
-            WhatsApp’tan Teklif Al
-          </a>
-        </div>
-      </header>
+            <div className="glow-line" />
 
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-10">
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
-          {/* Left info */}
-          <div className="card rounded-3xl p-6 sm:p-8 relative overflow-hidden">
-            <div className="glow-line absolute inset-x-0 top-0" />
-            <div className="absolute -top-32 -right-32 h-72 w-72 rounded-full bg-blue-600/12 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-32 -left-32 h-72 w-72 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
-
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-blue-400 badge-dot" />
-              <span className="text-xs text-zinc-300">Canlı Demo • {demo.category}</span>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Chip>Canlı Mini Site</Chip>
+              <Chip>Responsive</Chip>
+              <Chip>Neon Premium</Chip>
             </div>
 
-            <h1 className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">
-              {demo.title} <span className="text-zinc-400">Demo</span>
+            <h1 className="mt-4 text-3xl sm:text-4xl font-semibold tracking-tight">
+              {cfg.title} <span className="text-zinc-300">• {cfg.category}</span>
             </h1>
+            <p className="mt-3 text-zinc-300">{cfg.tagline}</p>
 
-            <p className="mt-3 text-zinc-300">{demo.description}</p>
+            <StatsRow stats={cfg.stats} />
+            <SectionGrid sections={cfg.sections} />
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              <span className={chipClass()}>Teslim: {demo.delivery}</span>
-              <span className={chipClass()}>Başlangıç: {demo.priceHint}</span>
-              <span className={chipClass()}>Plan: {plan.toUpperCase()}</span>
-            </div>
+            <div id="cta" className="mt-7 card soft-ring rounded-2xl p-4">
+              <div className="text-sm font-semibold">Teklif & İletişim</div>
+              <p className="mt-1 text-sm text-zinc-300">
+                Bu demo gerçek bir mini-site örneği. İstersen aynısını markana göre düzenleyip teslim edelim.
+              </p>
 
-            <div className="mt-7 grid gap-3">
-              {demo.bullets.map((b) => (
-                <div
-                  key={b}
-                  className="rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-zinc-200 ring-1 ring-white/5"
+              <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                <a
+                  href={`${WHATSAPP_LINK}?text=${message}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-full bg-green-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-500/30 hover:bg-green-400 transition"
                 >
-                  • {b}
-                </div>
-              ))}
-            </div>
+                  WhatsApp’tan Teklif Al
+                </a>
 
-            <div className="mt-7">
-              <div className="text-xs text-zinc-400">Teknoloji</div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {demo.stack.map((s) => (
-                  <span key={s} className={chipClass()}>
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href={`/urun/${params.slug}?plan=${plan}`}
-                className="rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white
-                           shadow-lg shadow-blue-600/25 ring-1 ring-white/10 hover:opacity-95 transition"
-              >
-                Bu Temayı Satın Al
-              </Link>
-
-              <a
-                href={`${WHATSAPP_LINK}?text=${message}`}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full border border-white/12 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white
-                           hover:border-white/20 hover:bg-white/10 transition"
-              >
-                WhatsApp’tan Yaz
-              </a>
-            </div>
-          </div>
-
-          {/* Right preview */}
-          <div className="card rounded-3xl p-4 sm:p-6 relative overflow-hidden">
-            <div className="glow-line absolute inset-x-0 top-0" />
-
-            {/* Browser top */}
-            <div className="flex items-center justify-between px-2 sm:px-3 py-2">
-              <div className="flex gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-white/25" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/18" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/12" />
-              </div>
-
-              <div className="text-xs text-zinc-300 rounded-full border border-white/10 bg-white/5 px-3 py-1">
-                Preview
-              </div>
-            </div>
-
-            <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-black/35 ring-1 ring-white/5">
-              <div className="relative aspect-[16/10]">
-                <Image
-                  src={demo.image}
-                  alt={demo.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
-
-                <div className="absolute bottom-4 left-4 right-4 flex flex-col gap-2">
-                  <div className="text-sm font-semibold text-white">{demo.title} — Live Preview</div>
-                  <div className="text-xs text-zinc-300">
-                    Gerçek demoları istersen bunu ayrı Vercel linkleriyle de yayınlayabiliriz.
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">
-                <div className="text-xs text-zinc-300">
-                  <span className="text-zinc-400">Slug:</span> {params.slug}
-                </div>
                 <Link
-                  href={`/urun/${params.slug}?plan=${plan}`}
-                  className="rounded-full border border-white/12 bg-white/5 px-4 py-2 text-xs font-semibold text-white
-                             hover:border-white/20 hover:bg-white/10 transition"
+                  href={`/urun/${slug}?plan=pro`}
+                  className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white hover:border-white/20 hover:bg-white/10 transition"
                 >
-                  Detay → Satın Al
+                  Paketleri Gör
                 </Link>
               </div>
             </div>
 
-            <div className="mt-4 text-xs text-zinc-400">
-              Not: Bu sayfa “canlı demo sunumu”dur. İstersen her demoyu ayrı proje olarak Vercel’e deploy edip
-              gerçek interaktif demo da yaparız.
+            <div className="mt-5 text-xs text-zinc-500">
+              İpucu: Her demo içeriğini çoğaltıp “tema mağazası”na çevirebiliriz.
             </div>
-          </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.05 }}
+          >
+            <FakePhoneFrame>{inner}</FakePhoneFrame>
+          </motion.div>
         </div>
       </section>
     </main>
